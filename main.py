@@ -12,10 +12,24 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import (
     NoSuchElementException,
+    StaleElementReferenceException
 )
 from webdriver_manager.chrome import ChromeDriverManager
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger("whatsapp")
+file_handler = logging.FileHandler("whatsapp.log")
+file_handler.setLevel(logging.INFO)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+
+formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+file_handler.setFormatter(formatter)
+stream_handler.setFormatter(formatter)
+
+LOGGER.addHandler(file_handler)
+LOGGER.addHandler(stream_handler)
+LOGGER.setLevel(logging.INFO)
 
 
 class WhatsApp(object):
@@ -40,9 +54,8 @@ class WhatsApp(object):
 
         self.browser = browser
         self.wait = WebDriverWait(self.browser, time_out)
-        self.cli()
         self.login()
-        self.mobile = ""
+        self.mobile_number = ""
 
     @property
     def chrome_options(self):
@@ -56,17 +69,6 @@ class WhatsApp(object):
         # chrome_options.add_argument("--headless")
         return chrome_options
 
-    def cli(self):
-        handler = logging.FileHandler("whatsapp.log")
-        handler.setFormatter(
-            logging.Formatter(
-                "%(asctime)s - %(name)s -- [%(levelname)s] >> %(message)s"
-            )
-        )
-        LOGGER.setLevel(logging.INFO)
-        LOGGER.addHandler(logging.StreamHandler())
-        LOGGER.addHandler(handler)
-
     def login(self):
         self.browser.get(self.BASE_URL)
         self.browser.maximize_window()
@@ -76,10 +78,14 @@ class WhatsApp(object):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    "/html/body/div[1]/div/div[2]/div[3]/div/div[1]/div/div[2]/div[2]/div/div[1]",
+                    # "/html/body/div[1]/div/div[2]/div[3]/div/div[1]/div/div[2]/div[2]/div/div[1]",
+                    '//*[@id="side"]/div[1]/div/div[2]/div[2]/div/div[1]'
                 )
             )
         )
+
+        if not search_box:
+            raise NoSuchElementException
 
         search_box.clear()
         search_box.send_keys(username)
@@ -91,7 +97,7 @@ class WhatsApp(object):
 
         if len(opened_chat):
             LOGGER.info(f'Successfully fetched chat "{username}"')
-            self.mobile = username
+            self.mobile_number = username
         else:
             raise NoSuchElementException
 
@@ -104,6 +110,10 @@ class WhatsApp(object):
                 )
             )
         )
+
+        if not clipButton:
+            raise NoSuchElementException
+
         clipButton.click()
 
     def send_attachment(self):
@@ -122,13 +132,24 @@ class WhatsApp(object):
                 )
             )
         )
+
+        if not sendButton:
+            raise NoSuchElementException
+
         sendButton.click()
 
-        self.wait.until(
+        # Get the latest message msg-time
+        message_time = self.wait.until(
             EC.presence_of_element_located(
                 (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
             )
         )
+
+        try:
+            while message_time and message_time.get_attribute("aria-label") == " Pending ":
+                time.sleep(1)
+        except StaleElementReferenceException:
+            return
 
     def send_file(self, filename: Path):
         """send_file()
@@ -149,10 +170,13 @@ class WhatsApp(object):
                     )
                 )
             )
+
+            if not document_button:
+                raise NoSuchElementException
+
             document_button.send_keys(filename)
             self.send_attachment()
-            time.sleep(3)
-            LOGGER.info(f"File {filename} sent to {self.mobile}")
+            LOGGER.info(f"File {filename} sent to {self.mobile_number}")
 
         except (NoSuchElementException, Exception) as bug:
             raise bug
@@ -199,6 +223,7 @@ try:
     pdf_file = get_pdf_file(whatsapp_dir)
 except Exception as e:
     LOGGER.exception(f"An error occurred: {e}")
+    exit(1)
 
 messenger = WhatsApp()
 
@@ -206,9 +231,11 @@ try:
     messenger.find_by_username(number)
 except NoSuchElementException:
     LOGGER.exception(f'It was not possible to fetch chat "{number}"')
+    exit(1)
 
 try:
     messenger.send_file(pdf_file)
     messenger.quit()
 except Exception as e:
     LOGGER.exception(f"An error occurred while sending the file: {e}")
+    exit(1)
