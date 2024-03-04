@@ -19,16 +19,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 LOGGER = logging.getLogger("whatsapp")
 file_handler = logging.FileHandler("whatsapp.log")
 file_handler.setLevel(logging.INFO)
-stream_handler = logging.StreamHandler()
-stream_handler.setLevel(logging.INFO)
 
 formatter = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 file_handler.setFormatter(formatter)
-stream_handler.setFormatter(formatter)
 
 LOGGER.addHandler(file_handler)
-LOGGER.addHandler(stream_handler)
 LOGGER.setLevel(logging.INFO)
 
 
@@ -39,18 +35,12 @@ class WhatsApp(object):
         try:
             browser = webdriver.Chrome(
                 ChromeDriverManager().install(),
-                options=self.chrome_options,
+                options=self.chrome_options
             )
         except Exception as e:
             LOGGER.exception(
                 f"An error occurred while initializing the browser: {e}")
             sys.exit(1)
-
-        handles = browser.window_handles
-        for _, handle in enumerate(handles):
-            if handle != browser.current_window_handle:
-                browser.switch_to.window(handle)
-                browser.close()
 
         self.browser = browser
         self.wait = WebDriverWait(self.browser, time_out)
@@ -63,6 +53,8 @@ class WhatsApp(object):
         chrome_options.add_argument("--profile-directory=Default")
         chrome_options.add_argument(
             "--user-data-dir=C:/Temp/ChromeProfile")
+        chrome_options.add_experimental_option(
+            'excludeSwitches', ['enable-logging'])
         # chrome_options.add_argument('--log-level=1')
         # chrome_options.add_argument(
         #     "user-agent=User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
