@@ -23,7 +23,7 @@ rem Install requirements.txt
 pip install -r requirements.txt
 
 echo Building the executable...
-pyinstaller --onefile --windowed  main.py --name send_pdf_to_whatsapp
+pyinstaller --onefile --windowed  app.py --name send_pdf_to_whatsapp
 
 @REM remove spec file and build folder
 rmdir /s /q build
