@@ -61,6 +61,9 @@ class WhatsApp(object):
         self.browser.maximize_window()
 
     def find_by_username(self, username):
+        self.browser.switch_to.window(self.browser.window_handles[0])
+        self.browser.maximize_window()
+
         search_box = self.wait.until(
             EC.presence_of_element_located(
                 (
