@@ -11,9 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 from webdriver_manager.chrome import ChromeDriverManager
-from tkinter import Tk, Label, Entry, Button
-from PIL import Image, ImageTk
-from tkinter import ttk  # Import the themed widgets module
+from tkinter import Tk, Button
 import tkinter as tk
 from tkinter import font as tkFont
 
@@ -168,6 +166,12 @@ class WhatsApp(object):
 class WhatsAppApp:
     def __init__(self, root, messenger):
 
+        # On quit, close the browser and exit the app
+        def quittk():
+            messenger.quit()
+            sys.exit(0)
+        root.protocol("WM_DELETE_WINDOW", quittk)
+
         self.messenger = messenger
 
         # setting title
@@ -256,11 +260,7 @@ class WhatsAppApp:
             LOGGER.exception(f"An error occurred: {e}")
 
 
-if __name__ == "__main__":
-    root = Tk()
-    messenger = WhatsApp()
-    app = WhatsAppApp(root, messenger)
-
-    # if the app is closed, quit the browser
-    root.protocol("WM_DELETE_WINDOW", messenger.quit)
-    root.mainloop()
+root = Tk()
+messenger = WhatsApp()
+app = WhatsAppApp(root, messenger)
+root.mainloop()
