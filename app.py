@@ -260,7 +260,11 @@ class WhatsAppApp:
             LOGGER.exception(f"An error occurred: {e}")
 
 
-root = Tk()
-messenger = WhatsApp()
-app = WhatsAppApp(root, messenger)
-root.mainloop()
+try:
+    root = Tk()
+    messenger = WhatsApp()
+    app = WhatsAppApp(root, messenger)
+    root.mainloop()
+except Exception as e:
+    LOGGER.exception(f"An error occurred: {e}")
+    sys.exit(1)
