@@ -191,48 +191,19 @@ class WhatsAppApp:
         error_label = tk.Label(root, textvariable=self.error_message)
         fo = tkFont.Font(family='Helvetica', size=10)
         error_label["font"] = fo
-        error_label.place(x=30, y=120)
+        error_label.place(x=90, y=180)
         error_label["fg"] = "#ff4500"
 
         send_button = Button(root, text="Send PDF", command=self.send_whatsapp)
-        send_button.place(x=360, y=210, width=125, height=35)
+        send_button.place(x=185, y=115, width=180, height=50)
         send_button["activebackground"] = "#5fb878"
         send_button["activeforeground"] = "#ffffff"
         send_button["bg"] = "#009688"
         send_button["fg"] = "#ffffff"
         send_button["borderwidth"] = "1px"
         send_button["cursor"] = "hand2"
-        fo = tkFont.Font(family='Helvetica', size=12)
+        fo = tkFont.Font(family='Helvetica', size=18)
         send_button["font"] = fo
-
-        note = tk.Label(root)
-        ft = tkFont.Font(family='Helvetica', size=8)
-        note["font"] = ft
-        note["fg"] = "#ff4500"
-        note["justify"] = "center"
-        note["text"] = "Make sure to have the pdf in 'c://whatsapp' folder"
-        note.place(x=30, y=220, width=250, height=39)
-
-        # Create a Label with "Enter Number" as text and a input field next to it
-        label_number = tk.Label(root)
-        label_number["text"] = "Enter Number:"
-        ft = tkFont.Font(family='Helvetica', size=18)
-        label_number["font"] = ft
-        label_number.place(x=30, y=30)
-
-        self.entry_number = Entry(
-            root, highlightthickness=1, highlightbackground="black")
-        self.entry_number.place(x=30, y=80)
-
-        # styling the entry widget
-        self.entry_number.config(
-            font=("Helvetica", 18),
-            bg="white",
-            fg="black",
-            borderwidth=1,
-            relief=tk.FLAT,
-            width=20,
-        )
 
     def get_pdf_file(self, parent_dir: str) -> str:
         # Find the first pdf file in the directory
@@ -248,21 +219,31 @@ class WhatsAppApp:
             raise FileNotFoundError(
                 "No pdf file found, make sure to have a pdf file in {}".format(parent_dir))
 
+    def get_phone_number(self, parent_dir: str) -> str:
+        # Check if the number.txt file exists
+        number_file = os.path.join(parent_dir, "number.txt")
+        if os.path.exists(number_file):
+            with open(number_file, "r") as f:
+                number = f.read().strip()
+
+                number = number.replace(" ", "").replace(
+                    "-", "").replace("+", "")
+
+                # Check if the number is valid
+                if number.isdigit():
+                    return number
+                else:
+                    raise ValueError(
+                        "Invalid number, it should be made of digits only")
+
+        else:
+            raise FileNotFoundError("No number.txt file found")
+
     def send_whatsapp(self):
         try:
             self.error_message.set("")
-            number = self.entry_number.get()
+            number = self.get_phone_number("C://whatsapp")
             pdf_file = self.get_pdf_file("C://whatsapp")
-
-            # Remove any leading or trailing spaces
-            number = number.strip()
-
-            # Remove spaces, hyphens, and plus signs
-            number = number.replace(" ", "").replace("-", "").replace("+", "")
-
-            if not number.isdigit():
-                raise ValueError(
-                    "Invalid number, it should be made of digits only")
 
             if not os.path.exists(pdf_file):
                 raise FileNotFoundError("Selected PDF file does not exist")
