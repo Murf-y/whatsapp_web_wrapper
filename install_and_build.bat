@@ -22,15 +22,28 @@ if %errorlevel% neq 0 (
 rem Install requirements.txt
 pip install -r requirements.txt
 
-echo Building the executable...
-pyinstaller --onefile --windowed  app.py --name send_pdf_to_whatsapp
+echo Building APPLICATION 1 executable
+pyinstaller --onefile  application1.py --name application1
 
 @REM remove spec file and build folder
 rmdir /s /q build
-del send_pdf_to_whatsapp.spec
+del application1.spec
 
 @REM Move the executable from dist to the root folder
-move dist\send_pdf_to_whatsapp.exe .
+move dist\application1.exe .
 rmdir /s /q dist
 
-echo Build complete.
+echo Build application1 complete.
+
+echo Building APPLICATION 2 executable
+pyinstaller --onefile  application2.py --name application2
+
+@REM remove spec file and build folder
+rmdir /s /q build
+del application2.spec
+
+@REM Move the executable from dist to the root folder
+move dist\application2.exe .
+rmdir /s /q dist
+
+echo Build application2 complete.
