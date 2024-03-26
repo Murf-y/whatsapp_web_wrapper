@@ -34,8 +34,7 @@ class WhatsApp(object):
 
         try:
             browser = webdriver.Chrome(
-                ChromeDriverManager().install(), options=self.chrome_options
-            )
+                ChromeDriverManager().install(), options=self.chrome_options)
         except Exception as e:
             LOGGER.exception(
                 f"An error occurred while initializing the browser: {e}")
@@ -233,6 +232,5 @@ async def perform_function():
         LOGGER.exception(f"An error occurred: {e}")
         return str(e)
     return json.dumps({"status": "201"})
-
 
 uvicorn.run(app, port=PORT, host=HOST)

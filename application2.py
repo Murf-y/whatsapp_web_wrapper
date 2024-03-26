@@ -1,5 +1,4 @@
 import requests
-import sys
 import logging
 
 HOST = "localhost"
@@ -22,6 +21,6 @@ try:
     requests.post(APP1_URL)
 except requests.exceptions.ConnectionError as e:
     LOGGER.exception(
-        f"An error occurred while connecting to the server: {e}")
+        f"An error occurred while connecting to the server: MAKE SURE APPLICATION 1 IS RUNNING {e}")
 except Exception as e:
     LOGGER.exception(f"An error occurred: {e}")

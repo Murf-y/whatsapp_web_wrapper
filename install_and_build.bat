@@ -23,7 +23,7 @@ rem Install requirements.txt
 pip install -r requirements.txt
 
 echo Building APPLICATION 1 executable
-pyinstaller --onefile  application1.py --name application1
+pyinstaller --onefile application1.py --name application1
 
 @REM remove spec file and build folder
 rmdir /s /q build
@@ -36,7 +36,7 @@ rmdir /s /q dist
 echo Build application1 complete.
 
 echo Building APPLICATION 2 executable
-pyinstaller --onefile  application2.py --name application2
+pyinstaller --onefile --noconsole application2.py --name application2
 
 @REM remove spec file and build folder
 rmdir /s /q build
