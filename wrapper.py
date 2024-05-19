@@ -16,8 +16,8 @@ from starlette.middleware.cors import CORSMiddleware
 import uvicorn
 import json
 
-LOGGER = logging.getLogger("application1")
-file_handler = logging.FileHandler("application1.log")
+LOGGER = logging.getLogger("wrapper")
+file_handler = logging.FileHandler("wrapper.log")
 file_handler.setLevel(logging.INFO)
 
 formatter = logging.Formatter(
@@ -170,60 +170,14 @@ class WhatsApp(object):
         self.browser.quit()
 
 
-def get_pdf_file(parent_dir: str) -> str:
-    # Find the first pdf file in the directory
-    pdf_file = None
-    for file in os.listdir(parent_dir):
-        if file.endswith(".pdf"):
-            pdf_file = os.path.join(parent_dir, file)
-            break
-    if pdf_file:
-        return pdf_file
-    else:
-        raise FileNotFoundError(
-            "No pdf file found, make sure to have a pdf file in {}".format(parent_dir))
-
-
-def get_phone_number(parent_dir: str) -> str:
-    # Check if the number.txt file exists
-    number_file = os.path.join(parent_dir, "number.txt")
-    if os.path.exists(number_file):
-        with open(number_file, "r") as f:
-            number = f.read().strip()
-            number = number.replace(" ", "").replace(
-                "-", "").replace("+", "")
-            # Check if the number is valid
-            if number.isdigit():
-                return number
-            else:
-                raise ValueError(
-                    "Invalid number, it should be made of digits only")
-    else:
-        raise FileNotFoundError("No number.txt file found")
-
-
 PARENT_DIRECTORY = "C://whatsapp"
-HOST = "localhost"
-PORT = 4325
-app = FastAPI()
 messenger = WhatsApp()
 
-origins = [
-    # only local host or 127.0.0.1
-    "http://localhost",
-    "http://127.0.0.1",
-]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-)
 
-
-@app.post('/send_pdf_file')
-async def perform_function():
+def main():
     try:
-        number = get_phone_number("C://whatsapp")
-        pdf_file = get_pdf_file("C://whatsapp")
+        number = "Enter the number here"
+        pdf_file = "Enter the path to the PDF file here"
         if not os.path.exists(pdf_file):
             raise FileNotFoundError("Selected PDF file does not exist")
         messenger.find_by_username(number)
@@ -231,6 +185,7 @@ async def perform_function():
     except Exception as e:
         LOGGER.exception(f"An error occurred: {e}")
         return str(e)
-    return json.dumps({"status": "201"})
 
-uvicorn.run(app, port=PORT, host=HOST)
+
+if __name__ == "__main__":
+    main()

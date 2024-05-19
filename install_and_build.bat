@@ -23,27 +23,8 @@ rem Install requirements.txt
 pip install -r requirements.txt
 
 echo Building APPLICATION 1 executable
-pyinstaller --onefile application1.py --name application1
+pyinstaller --onefile wrapper.py --name wrapper
 
 @REM remove spec file and build folder
 rmdir /s /q build
 del application1.spec
-
-@REM Move the executable from dist to the root folder
-move dist\application1.exe .
-rmdir /s /q dist
-
-echo Build application1 complete.
-
-echo Building APPLICATION 2 executable
-pyinstaller --onefile --noconsole application2.py --name application2
-
-@REM remove spec file and build folder
-rmdir /s /q build
-del application2.spec
-
-@REM Move the executable from dist to the root folder
-move dist\application2.exe .
-rmdir /s /q dist
-
-echo Build application2 complete.
